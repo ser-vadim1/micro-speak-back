@@ -4,17 +4,24 @@ const users = [];
 
 
 
-
   
 const DB_UseresOnline = async (OwneruserId, socketId) =>{
-  await UsersOnline.deleteMany({OwneruserId: OwneruserId})
-  await UsersOnline.create({
-    OwneruserId: OwneruserId,
-    socketId: socketId,
-  }, async (err)=>{
-    if(err) console.log('error at mode userOnline', err);
-     Online = await UsersOnline.find()
-  })
+  try {
+    await UsersOnline.deleteMany({OwneruserId: OwneruserId}) 
+    
+    await UsersOnline.create({
+      OwneruserId: OwneruserId,
+      socketId: socketId,
+    }, async (err)=>{
+      if(err) console.log('error at mode userOnline', err);
+       Online = await UsersOnline.find()
+    })
+  } catch (error) {
+    console.log('DB_UseresOnline error ', error);
+    
+    
+  }
+
 }
 
 const addUser = ({ idSocket, ID_SinglChat, QuestIdUser, OwneruserId }) => {

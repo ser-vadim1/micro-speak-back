@@ -27,7 +27,7 @@ io.on("connection", async (socket) => {
 const OwneruserId = socket.handshake.query.OwneruserId
 
 // ! Если варин окажиться рабочий перенести логику в отделльную функцию!!.
-if(OwneruserId !== ""){
+if(OwneruserId){
   DB_UseresOnline(OwneruserId, socket.id)
 }
     socket.on("join", async ({ ID_SinglChat, QuestIdUser, OwneruserId }) => {
@@ -47,6 +47,9 @@ if(OwneruserId !== ""){
       let historyMassages = await Messages.find({
         ID_SinglChat: ID_SinglChat,
       });
+      console.log(historyMassages);
+      
+
       io.to(ID_SinglChat).emit("historyMassages", historyMassages);
     });
 
@@ -102,13 +105,10 @@ socketIds.forEach(socketId => {
         // the disconnection was initiated by the server, you need to reconnect manually
         socket.connect();
         console.log('the disconnection was initiated by the server, you need to reconnect manually');
-        
       }
-      // console.log("user disconnect reason ", reason, 'path', path, 'socket ID = ', socket.id );
       removeUser(socket.id);
       await UsersOnline.deleteMany({socketId: socket.id})
       console.log('disconnect');
-      
     });
 
 

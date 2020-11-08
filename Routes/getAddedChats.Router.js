@@ -10,9 +10,14 @@ getAddedChats.get("/geAddedChats:OwnerUserId", async (req, res) => {
   const { OwnerUserId } = req.params;
 
   try {
+
     let QuestChat = await Chat.find({ idQuest: OwnerUserId });
     let OwnerChat = await Chat.find({ idAdmin: OwnerUserId });
+
+    
+
     const CommonChats = QuestChat.concat(OwnerChat);
+  
 
     return res.status(200).json({ CommonChats: CommonChats });
   } catch (error) {

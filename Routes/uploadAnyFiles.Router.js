@@ -64,6 +64,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
           {
           link: `${process.env.CLIENT_SIDE}/uploadedAnyFiles/${file.filename}`,
           typeFile: file.mimetype,
+          originalname: file.originalname
         });
       });
       res.json({
