@@ -5,7 +5,7 @@ const express = require("express");
 const socketio = require("socket.io")
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, { transports: ['websocket'] });
+const io = socketio(server, { transports: ['polling'] });
 
 require("./socket/socket.js")(io);
 
