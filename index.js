@@ -1,11 +1,11 @@
 require("dotenv").config();
 
-const http = require("http");
+const https = require("https");
 const express = require("express");
 const socketio = require("socket.io")
 const app = express();
-const server = http.createServer(app);
-const io = socketio(server, { transports: ['polling'] });
+const server = https.createServer(app);
+const io = socketio(server);
 
 require("./socket/socket.js")(io);
 
