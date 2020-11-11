@@ -47,7 +47,6 @@ if(OwneruserId){
       let historyMassages = await Messages.find({
         ID_SinglChat: ID_SinglChat,
       });
-      console.log(historyMassages);
       
 
       io.to(ID_SinglChat).emit("historyMassages", historyMassages);

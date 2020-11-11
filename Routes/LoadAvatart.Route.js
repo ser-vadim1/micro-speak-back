@@ -10,7 +10,6 @@ const { User, Chat, Messages } = require("../db");
 const fs = require("fs")
 const path = require('path')
 const sharp = require('sharp');
-const { log } = require("console");
 
 
       getAvatarFileName.get('/getAvatrFilename', (req, res, next)=>{
@@ -86,60 +85,11 @@ const { log } = require("console");
                 }
               }
             );
-              console.log(info);
             })
             } catch (error) {
+              console.log('error at AvatarRouter', error);
               
-            }
-  
-
-
-
-            // let upDatateQuest =  await Chat.find({idQuest: _id})
-            // let upDateAdmin = await Chat.find({idAdmin: _id})
-            // let messAva = await Messages.find({idSender: _id})
-
-            // messAva.forEach(async (el)=>{
-            //   try {
-                
-            //     await Messages.findByIdAndUpdate(el._id, {avatarFile: newFilename})
-            //   } catch (error) {
-            //     console.log('error at update avatar at Schema messages', error);
-                
-            //   }
-            // })            
-
-            // if(upDatateQuest && upDateAdmin.length == 0){
-            //   upDatateQuest.forEach(async(el)=>{
-            //       try {
-            //         await Chat.findByIdAndUpdate(el._id, {QuestAvatarFile: newFilename})
-            //       } catch (error) {
-                    
-            //       }
-            //   })
-            // }else if(upDateAdmin && upDatateQuest.length == 0) {
-            //   upDateAdmin.forEach(async(el)=>{
-            //     try {
-                  
-            //       await Chat.findByIdAndUpdate(el._id, {AdminAvatarFile: newFilename})
-            //     } catch (error) {
-                  
-            //     }
-            // })
-            // }
-            
-            // let UpDateAvatar = await User.findByIdAndUpdate(
-            //   _id,
-            //   { avatar: newFilename },
-            //   function (err, user) {
-            //     if (err) {
-            //       return console.log(err)
-            //     }else{
-            //        return  res.json({ filename: newFilename });
-            //     }
-            //   }
-            // );
-           
+            }    
 
           }
         });

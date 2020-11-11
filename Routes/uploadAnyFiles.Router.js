@@ -6,6 +6,8 @@ let multer = require("multer");
 const upLoadAnyFilesRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const { User } = require("../db");
+const sharp = require("sharp")
+const path = require('path')
 
 
 
@@ -35,9 +37,9 @@ let upLoadAnyFiles = multer({ storage: storageAnyFiles }).array(
 upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
   upLoadAnyFiles(req, res,  (err) =>{
     const token = req.headers.authorization;
-    
+    let NewArrFiles = []
     const { files } = req;
-    console.log('file',files);
+    console.log('files', files);
     
     if (err instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
@@ -54,22 +56,52 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         return res
           .status(401)
           .json({ message: "error at UploadAnyFiles because of verify Token" });
-      } else if (err) {
-        console.log('error at uploadAnyfiles', err);
-        // An unknown error occurred when uploading.
       }
-      let NewArrFiles = files.map((file, _) => {
-        
-        return (
-          {
-          link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
-          typeFile: file.mimetype,
-          originalname: file.originalname
-        });
-      });
+      let regexIMG = /^image\/.+/
+      let regexAUDIO = /^audio\/.+/
+
+         for (const file of files) {
+           let image = file.mimetype == 'image/jpeg' ? sharp(file.path) : ""
+           if(image){
+            let metadata = await image.metadata()
+            if(metadata.width > 800 || metadata.height > 800){
+             image.resize(300, 300).toFile(path.resolve(file.destination, `resized_${file.filename}`), (err, info)=>{
+               if(err) console.log(err);
+               console.log(info);
+             })
+             NewArrFiles.push({
+                   link: `${process.env.DOM_NAME}/uploadedAnyFiles/resized_${file.filename}`,
+                   typeFile: file.mimetype,
+                   originalname: file.originalname
+             })
+            }
+          } else {
+            NewArrFiles.push({
+              link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
+              typeFile: file.mimetype,
+              originalname: file.originalname
+            })
+          }
+         }
+
+     console.log('NewArrFiles', NewArrFiles);
+     
+      
       res.json({
         files: NewArrFiles,
       });
+      
+
+
+      // let NewArrFiles = files.map(async (file, _) => {
+      //   return (
+      //     {
+      //     link: `${process.env.DOM_NAME}/uploadedAnyFiles/${newFileName}`,
+      //     typeFile: file.mimetype,
+      //     originalname: file.originalname
+      //   });
+      // });
+     
     });
   });
 });
