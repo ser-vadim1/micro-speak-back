@@ -57,8 +57,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
           .status(401)
           .json({ message: "error at UploadAnyFiles because of verify Token" });
       }
-      let regexIMG = /^image\/.+/
-      let regexAUDIO = /^audio\/.+/
+
 
          for (const file of files) {
            let image = file.mimetype == 'image/jpeg' ? sharp(file.path) : ""
