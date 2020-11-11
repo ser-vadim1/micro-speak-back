@@ -64,7 +64,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
            if(image){
             let metadata = await image.metadata()
             if(metadata.width > 800 || metadata.height > 800){
-             image.resize(300, 300).toFile(path.resolve(file.destination, `resized_${file.filename}`), (err, info)=>{
+             image.resize(800, 800).toFile(path.resolve(file.destination, `resized_${file.filename}`), (err, info)=>{
                if(err) console.log(err);
                console.log(info);
              })
