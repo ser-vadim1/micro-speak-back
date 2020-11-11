@@ -38,8 +38,10 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
   upLoadAnyFiles(req, res,  (err) =>{
     const token = req.headers.authorization;
     let NewArrFiles = []
+    let AudioFiles = []
+    let regexImg = /^image\/.+/
+    let regexAudio =  /^audio\/.+/
     const { files } = req;
-    console.log('files', files);
     
     if (err instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
@@ -59,48 +61,43 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
       }
 
 
-         for (const file of files) {
-           let image = file.mimetype == 'image/jpeg' ? sharp(file.path) : ""
-           if(image){
-            let metadata = await image.metadata()
-            if(metadata.width > 800 || metadata.height > 800){
-             image.resize(800, 800).toFile(path.resolve(file.destination, `resized_${file.filename}`), (err, info)=>{
-               if(err) console.log(err);
-               console.log(info);
-             })
-             NewArrFiles.push({
-                   link: `${process.env.DOM_NAME}/uploadedAnyFiles/resized_${file.filename}`,
-                   typeFile: file.mimetype,
-                   originalname: file.originalname
-             })
-            }
-          } else {
-            NewArrFiles.push({
-              link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
-              typeFile: file.mimetype,
-              originalname: file.originalname
-            })
-          }
-         }
+      let ImgFiles = files.filter((file)=> regexImg.test(file.mimetype) ? file : "")
 
-     console.log('NewArrFiles', NewArrFiles);
-     
+        files.forEach((file)=>  {
+        if(regexAudio.test(file.mimetype)){
+          AudioFiles.push({
+            link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
+            typeFile: file.mimetype,
+            originalname: file.originalname,
+          })
+        }
+      })
+      for(const imgFile of ImgFiles){
+        let image = sharp(imgFile.path)
+        let metadata = await image.metadata()
+
+        if (metadata.width > 800 || metadata.height > 800){
+          image.resize(800, 800).toFile(path.resolve(imgFile.destination, `resized_${imgFile.filename}`), (err, info)=>{})
+          NewArrFiles.push(
+            {
+              link: `${process.env.DOM_NAME}/uploadedAnyFiles/resized_${imgFile.filename}`,
+              typeFile: imgFile.mimetype,
+              originalname: imgFile.originalname
+            })
+        }else {
+          NewArrFiles.push({
+            link: `${process.env.DOM_NAME}/uploadedAnyFiles/${imgFile.filename}`,
+            typeFile: imgFile.mimetype,
+            originalname: imgFile.originalname,
+          })
+        }
+      }
+      let result = NewArrFiles.concat(AudioFiles)
       
       res.json({
-        files: NewArrFiles,
+        files: result,
       });
       
-
-
-      // let NewArrFiles = files.map(async (file, _) => {
-      //   return (
-      //     {
-      //     link: `${process.env.DOM_NAME}/uploadedAnyFiles/${newFileName}`,
-      //     typeFile: file.mimetype,
-      //     originalname: file.originalname
-      //   });
-      // });
-     
     });
   });
 });
