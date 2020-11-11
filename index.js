@@ -19,9 +19,6 @@ const { searchRouter } = require("./Routes/searchUsers.Router");
 const { upLoadAnyFilesRouter } = require("./Routes/uploadAnyFiles.Router");
 const {searchUsersOnline} = require("./Routes/searchUsersOnline.Router")
 const {searchAddedUsersRouter} = require("./Routes/searchAddedUsers")
-const gm = require('gm')
-const jimp = require("jimp")
-const fs = require("fs")
 let cors = require("cors");
 let multer = require("multer");
 
