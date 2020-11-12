@@ -74,6 +74,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         }
       })
       for(const imgFile of ImgFiles){
+
         let image = sharp(imgFile.path)
         let metadata = await image.metadata()
 
@@ -83,14 +84,15 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
             if(err) console.log(err);
 console.log('info',info);
 
-            NewArrFiles.push(
-              {
-                id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-                link: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
-                typeFile: imgFile.mimetype,
-                originalname: imgFile.originalname
-              })
+         
           })
+          NewArrFiles.push(
+            {
+              id: `f${(~~(Math.random()*1e8)).toString(16)}`,
+              link: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
+              typeFile: imgFile.mimetype,
+              originalname: imgFile.originalname
+            })
    
         }else {
           NewArrFiles.push({
