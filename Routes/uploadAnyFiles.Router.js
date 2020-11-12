@@ -66,6 +66,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         files.forEach((file)=>  {
         if(regexAudio.test(file.mimetype)){
           AudioFiles.push({
+            id: `f${(~~(Math.random()*1e8)).toString(16)}`,
             link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
             typeFile: file.mimetype,
             originalname: file.originalname,
@@ -77,15 +78,23 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         let metadata = await image.metadata()
 
         if (metadata.width > 800 || metadata.height > 800){
-          image.resize(800, 800).toFile(path.resolve(imgFile.destination, `resized_${imgFile.filename}`), (err, info)=>{})
-          NewArrFiles.push(
-            {
-              link: `${process.env.DOM_NAME}/uploadedAnyFiles/resized_${imgFile.filename}`,
-              typeFile: imgFile.mimetype,
-              originalname: imgFile.originalname
-            })
+          let name = `resized_${imgFile.filename}`
+          image.resize(800, 800).toFile(path.resolve(imgFile.destination, name), (err, info)=>{
+            if(err) console.log(err);
+console.log('info',info);
+
+            NewArrFiles.push(
+              {
+                id: `f${(~~(Math.random()*1e8)).toString(16)}`,
+                link: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
+                typeFile: imgFile.mimetype,
+                originalname: imgFile.originalname
+              })
+          })
+   
         }else {
           NewArrFiles.push({
+            id: `f${(~~(Math.random()*1e8)).toString(16)}`,
             link: `${process.env.DOM_NAME}/uploadedAnyFiles/${imgFile.filename}`,
             typeFile: imgFile.mimetype,
             originalname: imgFile.originalname,
@@ -93,7 +102,8 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         }
       }
       let result = NewArrFiles.concat(AudioFiles)
-      
+console.log('NewArrFiles',NewArrFiles);
+
       res.json({
         files: result,
       });
