@@ -85,14 +85,13 @@ socketIds.forEach(socketId => {
           },
           (err) => {
             if (err) console.log("error at create message", err);
-            
             io.in(ID_SinglChat).emit("message", {
               sender: sender.nick,
               avatarFile: sender.avatar,
               content: message,
               idSender: user.OwneruserId,
               upLoadAnyFiles: upLoadAnyFiles,
-              fileApiBrowser: fileApiBrowser,
+              // fileApiBrowser: fileApiBrowser,
               timeCreateAt: new Date().toLocaleString(),
             });
             callback();
