@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 let multer = require("multer");
 const upLoadAnyFilesRouter = express.Router();
 const jwt = require("jsonwebtoken");
-const { User } = require("../db");
+const { User, Messages } = require("../db");
 const sharp = require("sharp")
 const path = require('path')
 
@@ -34,7 +34,7 @@ let upLoadAnyFiles = multer({ storage: storageAnyFiles }).array(
   6
 );
 
-upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
+upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
   upLoadAnyFiles(req, res,  (err) =>{
     const token = req.headers.authorization;
     let NewArrFiles = []
@@ -42,7 +42,7 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
     let regexImg = /^image\/.+/
     let regexAudio =  /^audio\/.+/
     const { files } = req;
-    
+    const idMEssageDB = req.params.idMEssageDB
     if (err instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
       // ! Обработать ошибку
@@ -67,8 +67,8 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         if(regexAudio.test(file.mimetype)){
           AudioFiles.push({
             id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-            link: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
-            typeFile: file.mimetype,
+            src: `${process.env.DOM_NAME}/uploadedAnyFiles/${file.filename}`,
+            type: file.mimetype,
             originalname: file.originalname,
           })
         }
@@ -89,27 +89,26 @@ console.log('info',info);
           NewArrFiles.push(
             {
               id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-              link: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
-              typeFile: imgFile.mimetype,
+              src: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
+              type: imgFile.mimetype,
               originalname: imgFile.originalname
             })
    
         }else {
           NewArrFiles.push({
             id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-            link: `${process.env.DOM_NAME}/uploadedAnyFiles/${imgFile.filename}`,
-            typeFile: imgFile.mimetype,
+            src: `${process.env.DOM_NAME}/uploadedAnyFiles/${imgFile.filename}`,
+            type: imgFile.mimetype,
             originalname: imgFile.originalname,
           })
         }
       }
       let result = NewArrFiles.concat(AudioFiles)
-console.log('NewArrFiles',NewArrFiles);
-
+      await Messages.findByIdAndUpdate(idMEssageDB, {fileApiBrowser: result})
+      console.log('NewArrFiles',NewArrFiles);
       res.json({
         files: result,
       });
-      
     });
   });
 });

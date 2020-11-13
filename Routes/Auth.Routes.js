@@ -79,8 +79,11 @@ AuthRoute.post(
 
 AuthRoute.get("/confirmation:token", async (req, res, next) => {
   const { email, nick, password } = jwt.decode(req.params.token);
+
   const user = new User({ email, nick, password, avatar: "" });
+
   let userConfirmed = await User.findOne({ email });
+  
   jwt.verify(req.params.token, process.env.SECRET, async (error, decoded) => {
     if (error && !userConfirmed) {
       return res

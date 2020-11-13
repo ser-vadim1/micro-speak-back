@@ -82,11 +82,13 @@ socketIds.forEach(socketId => {
             upLoadAnyFiles: upLoadAnyFiles,
             ID_SinglChat: ID_SinglChat,
             sentTo: QuestIdUser,
+            fileApiBrowser: fileApiBrowser,
           },
-          (err) => {
+          (err, doc) => {
             if (err) console.log("error at create message", err);
             
             io.in(ID_SinglChat).emit("message", {
+              id: doc._id,
               sender: sender.nick,
               avatarFile: sender.avatar,
               content: message,

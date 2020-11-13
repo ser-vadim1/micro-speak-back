@@ -17,6 +17,10 @@ const MessagesSchema = new Schema({
     type: Array,
     require: false,
   },
+  fileApiBrowser:{
+    type: Array,
+    require: false,
+  },
   idSender: {
     type: String,
     require: true,
