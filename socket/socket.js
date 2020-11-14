@@ -79,7 +79,6 @@ socketIds.forEach(socketId => {
             avatarFile: sender.avatar,
             content: message,
             idSender: OwneruserId,
-            upLoadAnyFiles: upLoadAnyFiles,
             ID_SinglChat: ID_SinglChat,
             sentTo: QuestIdUser,
             fileApiBrowser: fileApiBrowser,
@@ -93,7 +92,6 @@ socketIds.forEach(socketId => {
               avatarFile: sender.avatar,
               content: message,
               idSender: user.OwneruserId,
-              upLoadAnyFiles: upLoadAnyFiles,
               fileApiBrowser: fileApiBrowser,
               timeCreateAt: new Date().toLocaleString(),
             });

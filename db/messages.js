@@ -13,10 +13,6 @@ const MessagesSchema = new Schema({
     type: String,
     require: true,
   },
-  upLoadAnyFiles: {
-    type: Array,
-    require: false,
-  },
   fileApiBrowser:{
     type: Array,
     require: false,
