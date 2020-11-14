@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const { User, Messages } = require("../db");
 const sharp = require("sharp")
 const path = require('path')
+const fs = require('fs')
 
 
 
@@ -82,9 +83,9 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
           let name = `resized_${imgFile.filename}`
           image.resize(800, 800).toFile(path.resolve(imgFile.destination, name), (err, info)=>{
             if(err) console.log(err);
-console.log('info',info);
+            console.log('info',info);
 
-         
+          fs.unlinkSync(file.path)
           })
           NewArrFiles.push(
             {

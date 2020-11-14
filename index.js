@@ -6,6 +6,7 @@ const socketio = require("socket.io")
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+const compression = require('compression');
 
 require("./socket/socket.js")(io);
 
@@ -27,6 +28,7 @@ app.use(cors({
   origin: process.env.CLIENT_SIDE,
   optionsSuccessStatus: 200,
 }));
+app.use( compression() )
 app.use("/uploadedAvatar", express.static("./public/uploadAvatar"));
 app.use("/uploadedAnyFiles", express.static("./public/uploadedAnyFiles"));
 app.use(bodyParser.json());
