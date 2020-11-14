@@ -81,11 +81,15 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
 
         if (metadata.width > 800 || metadata.height > 800){
           let name = `resized_${imgFile.filename}`
-          image.resize(800, 800).toFile(path.resolve(imgFile.destination, name), (err, info)=>{
+          image.resize(800, 800)
+          .tiff({
+            compression: 'lzw'
+          })
+          .toFile(path.resolve(imgFile.destination, name), (err, info)=>{
             if(err) console.log(err);
             console.log('info',info);
 
-          fs.unlinkSync(file.path)
+          fs.unlinkSync(imgFile.path)
           })
           NewArrFiles.push(
             {
