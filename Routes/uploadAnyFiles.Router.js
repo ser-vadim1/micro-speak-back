@@ -35,7 +35,7 @@ let upLoadAnyFiles = multer({ storage: storageAnyFiles }).array(
   6
 );
 
-upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
+upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
   upLoadAnyFiles(req, res,  (err) =>{
     const token = req.headers.authorization;
     let NewArrFiles = []
@@ -43,13 +43,12 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
     let regexImg = /^image\/.+/
     let regexAudio =  /^audio\/.+/
     const { files } = req;
-    const idMEssageDB = req.params.idMEssageDB
     if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      // ! Обработать ошибку
+      console.log('xx');
+      
       return res
         .status(400)
-        .json({ message: "There must be a maximum of 12 uploaded files" });
+        .json({ message: "There must be a maximum of 6 uploaded files" });
     } else if (err) {
       // An unknown error occurred when uploading.
       console.log("An unknown error occurred when uploading");
@@ -81,13 +80,15 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
 
         if (metadata.width > 800 || metadata.height > 800){
           let name = `resized_${imgFile.filename}`
+          let ext = path.extname(imgFile.filename)
+          let NewName = name.replace(`${ext}`, ".webp")
+          
           image.resize(800, 800)
-          .tiff({
-            compression: 'lzw'
+          .jpeg({
+            quality: 50,
           })
           .toFile(path.resolve(imgFile.destination, name), (err, info)=>{
             if(err) console.log(err);
-            console.log('info',info);
 
           fs.unlinkSync(imgFile.path)
           })
@@ -109,8 +110,6 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles:idMEssageDB", (req, res)=> {
         }
       }
       let result = NewArrFiles.concat(AudioFiles)
-      await Messages.findByIdAndUpdate(idMEssageDB, {fileApiBrowser: result})
-      console.log('NewArrFiles',NewArrFiles);
       res.json({
         files: result,
       });
