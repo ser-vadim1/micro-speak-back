@@ -1,9 +1,18 @@
-const {UsersOnline} =require("../db")
+const {UsersOnline} =require("../db");
+const { notify } = require("../Routes/Auth.Routes");
 
 const users = [];
-
-
-
+const notyfy =[]
+const obj = {}
+const notifyFunc = ({idSocket, OwneruserId}) =>{
+  const notyfiUser = {idSocket,OwneruserId}
+  const index = notyfy.findIndex((el)=>el.OwneruserId == OwneruserId)
+if(index == -1){
+  notyfy.push(notyfiUser)
+}
+  
+  return notyfy
+}
   
 const DB_UseresOnline = async (OwneruserId, socketId) =>{
   try {
@@ -12,10 +21,13 @@ const DB_UseresOnline = async (OwneruserId, socketId) =>{
     await UsersOnline.create({
       OwneruserId: OwneruserId,
       socketId: socketId,
-    }, async (err)=>{
+    }, async (err, doc)=>{
+      
       if(err) console.log('error at mode userOnline', err);
-       Online = await UsersOnline.find()
     })
+  
+
+   
   } catch (error) {
     console.log('DB_UseresOnline error ', error);
     
@@ -25,9 +37,16 @@ const DB_UseresOnline = async (OwneruserId, socketId) =>{
 }
 
 const addUser = ({ idSocket, ID_SinglChat, QuestIdUser, OwneruserId }) => {
+
   const user = { idSocket, ID_SinglChat, QuestIdUser, OwneruserId };
   users.push(user);
+  
   return { user };
+};
+
+const removeUserNotyfy = (idSocket) => {
+  const index = notyfy.findIndex((user) => user.idSocket === idSocket);
+  if (index !== -1) return notyfy.splice(index, 1)[0];
 };
 
 const removeUser = (idSocket) => {
@@ -50,6 +69,8 @@ if (index !== -1) {
 const getUser = (QuestIdUser, OwneruserId) =>
   users.find((user) => user.QuestIdUser === QuestIdUser && user.OwneruserId === OwneruserId);
 
+  
+
 const getUserMessage = (OwneruserId) =>
   users.find((user) => user.OwneruserId === OwneruserId);
 
@@ -61,4 +82,6 @@ module.exports = {
   getUserMessage,
   findPrevUser,
   DB_UseresOnline,
+  removeUserNotyfy,
+  notifyFunc,
 };

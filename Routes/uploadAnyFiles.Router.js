@@ -17,6 +17,13 @@ let storageAnyFiles = multer.diskStorage({
     cb(null, `./public/uploadedAnyFiles`);
   },
   filename: function (req, file, cb) {
+    console.log('file', file);
+    if(file.mimetype !== "image/jpeg"){
+      console.log('wrong ext');
+      return 
+      
+    }
+    
     cb(
       null,
       Date.now() +
@@ -44,8 +51,6 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
     let regexAudio =  /^audio\/.+/
     const { files } = req;
     if (err instanceof multer.MulterError) {
-      console.log('xx');
-      
       return res
         .status(400)
         .json({ message: "There must be a maximum of 6 uploaded files" });
@@ -74,40 +79,27 @@ upLoadAnyFilesRouter.post("/upLoadAnyFiles", (req, res)=> {
         }
       })
       for(const imgFile of ImgFiles){
-
         let image = sharp(imgFile.path)
-        let metadata = await image.metadata()
 
-        if (metadata.width > 800 || metadata.height > 800){
-          let name = `resized_${imgFile.filename}`
-          let ext = path.extname(imgFile.filename)
-          let NewName = name.replace(`${ext}`, ".webp")
-          
-          image.resize(800, 800)
+          image.resize(800, 800, {
+            fit: "inside",
+            withoutEnlargement: true
+          })
           .jpeg({
             quality: 50,
           })
-          .toFile(path.resolve(imgFile.destination, name), (err, info)=>{
+          .toFile(path.resolve(imgFile.destination, `resized_${imgFile.filename}` ), (err, info)=>{
             if(err) console.log(err);
-
+            console.log('info', info);
           fs.unlinkSync(imgFile.path)
           })
           NewArrFiles.push(
             {
               id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-              src: `${process.env.DOM_NAME}/uploadedAnyFiles/${name}`,
+              src: `${process.env.DOM_NAME}/uploadedAnyFiles/resized_${imgFile.filename}`,
               type: imgFile.mimetype,
               originalname: imgFile.originalname
             })
-   
-        }else {
-          NewArrFiles.push({
-            id: `f${(~~(Math.random()*1e8)).toString(16)}`,
-            src: `${process.env.DOM_NAME}/uploadedAnyFiles/${imgFile.filename}`,
-            type: imgFile.mimetype,
-            originalname: imgFile.originalname,
-          })
-        }
       }
       let result = NewArrFiles.concat(AudioFiles)
       res.json({

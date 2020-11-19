@@ -2,16 +2,19 @@ const { connect } = require("mongoose");
 const { User } = require("../db");
 const { Chat } = require("../db");
 const { Messages } = require("../db");
-const {UsersOnline} =require("../db")
+const {UsersOnline} =require("../db");
 const {
   addUser,
   getUser,
   removeUser,
   getUserMessage,
   findPrevUser,
-  DB_UseresOnline
+  DB_UseresOnline,
+  removeUserNotyfy,
+  notifyFunc,
 } = require("./users");
 
+let people = {}
 
 module.exports = (io) => {
     // io.use((socket, next)=>{
@@ -24,14 +27,26 @@ module.exports = (io) => {
       
     // })
 io.on("connection", async (socket) => {
-const OwneruserId = socket.handshake.query.OwneruserId
+// console.log('socket id at EVENT "connection" ', socket.id);
 
-// ! Если варин окажиться рабочий перенести логику в отделльную функцию!!.
-if(OwneruserId){
-  DB_UseresOnline(OwneruserId, socket.id)
-}
+// if(OwneruserId){
+// DB_UseresOnline(OwneruserId, socket.id)
+// }
+socket.on("notification", async ({OwneruserId, QuestIdUser, message}, cb)=>{
+  if(OwneruserId){
+    people[OwneruserId] = socket.id
+    console.log('people', people);
+    DB_UseresOnline(OwneruserId, socket.id)
+  }
+ 
+   
+    
+  })
+
     socket.on("join", async ({ ID_SinglChat, QuestIdUser, OwneruserId }) => {
+      
       if (ID_SinglChat  && getUser(QuestIdUser, OwneruserId) === undefined) {
+        
         socket.join(ID_SinglChat, async () => {
           const { error, user } = addUser({
             idSocket: socket.id,
@@ -39,39 +54,41 @@ if(OwneruserId){
             QuestIdUser,
             OwneruserId,
           });
-            
+
         });
-    
       }
   
-      let historyMassages = await Messages.find({
+      let historyMassages = await Messages.find({ 
         ID_SinglChat: ID_SinglChat,
       });
-      
-
       io.to(ID_SinglChat).emit("historyMassages", historyMassages);
     });
 
-socket.on('leave', ({shiftedPrevIdUser, shiftedprevIdChat})=>{
-  let user = findPrevUser(shiftedPrevIdUser)
-  io.of('/').in(shiftedprevIdChat).clients((error, socketIds) => {
+socket.on('leave', ({prevUSer, prevChat})=>{
+  let user = findPrevUser(prevUSer)
+  io.of('/').in(prevChat).clients((error, socketIds) => {
     if (error) throw error;
 socketIds.forEach(socketId => {
   if(socketId == user.idSocket){
-    io.sockets.sockets[socketId].leave(shiftedprevIdChat)
+    io.sockets.sockets[socketId].leave(prevChat)
   }
 });
   });
 })
 
+
+
+
     socket.on(
       "sendMessage",
       async (
-        { ID_SinglChat, message, OwneruserId, QuestIdUser, upLoadAnyFiles, fileApiBrowser },
+        { ID_SinglChat, message, OwneruserId, QuestIdUser, fileApiBrowser },
         callback
       ) => {
         const user = getUserMessage(OwneruserId);
+        
         let sender = await User.findById({ _id: OwneruserId });
+        
 
         await Messages.create(
           {
@@ -95,6 +112,8 @@ socketIds.forEach(socketId => {
               fileApiBrowser: fileApiBrowser,
               timeCreateAt: new Date().toLocaleString(),
             });
+            
+            io.to(people[QuestIdUser]).emit("sendNotification", "data")
             callback();
           }
         );
@@ -108,6 +127,7 @@ socketIds.forEach(socketId => {
         console.log('the disconnection was initiated by the server, you need to reconnect manually');
       }
       removeUser(socket.id);
+      Object.entries(people).forEach((el)=> el[1] == socket.id && delete people[el[0]])
       await UsersOnline.deleteMany({socketId: socket.id})
       console.log('disconnect');
     });
