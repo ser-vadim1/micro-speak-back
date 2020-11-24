@@ -22,6 +22,8 @@ const { searchRouter } = require("./Routes/searchUsers.Router");
 const { upLoadAnyFilesRouter } = require("./Routes/uploadAnyFiles.Router");
 const {searchUsersOnline} = require("./Routes/searchUsersOnline.Router")
 const {searchAddedUsersRouter} = require("./Routes/searchAddedUsers")
+const {getNotifi} = require("./Routes/getNotifi")
+const {getAdditional_Msg} = require("./Routes/getAdditionalMsgRouter")
 let cors = require("cors");
 let multer = require("multer");
 
@@ -85,6 +87,10 @@ app.use("/api/user", getAddedChats);
 app.use("/api/search/usersOnline", searchUsersOnline )
 
 app.use('/api/search/addedUsers', searchAddedUsersRouter)
+
+app.use('/api', getNotifi)
+
+app.use('/api', getAdditional_Msg)
 
   
 

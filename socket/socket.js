@@ -1,8 +1,10 @@
+const e = require("express");
 const { connect } = require("mongoose");
 const { User } = require("../db");
 const { Chat } = require("../db");
 const { Messages } = require("../db");
 const {UsersOnline} =require("../db");
+const {Notifi} = require("../db");
 const {
   addUser,
   getUser,
@@ -10,12 +12,9 @@ const {
   getUserMessage,
   findPrevUser,
   DB_UseresOnline,
-  removeUserNotyfy,
-  notifyFunc,
+  
 } = require("./users");
-
-let people = {}
-
+const {addNotifi, removeNotifi} = require("./notifi")
 module.exports = (io) => {
     // io.use((socket, next)=>{
     //   let token = socket.handshake.query.token;
@@ -27,20 +26,10 @@ module.exports = (io) => {
       
     // })
 io.on("connection", async (socket) => {
-// console.log('socket id at EVENT "connection" ', socket.id);
-
-// if(OwneruserId){
-// DB_UseresOnline(OwneruserId, socket.id)
-// }
 socket.on("notification", async ({OwneruserId, QuestIdUser, message}, cb)=>{
   if(OwneruserId){
-    people[OwneruserId] = socket.id
-    console.log('people', people);
     DB_UseresOnline(OwneruserId, socket.id)
-  }
- 
-   
-    
+    }
   })
 
     socket.on("join", async ({ ID_SinglChat, QuestIdUser, OwneruserId }) => {
@@ -60,8 +49,8 @@ socket.on("notification", async ({OwneruserId, QuestIdUser, message}, cb)=>{
   
       let historyMassages = await Messages.find({ 
         ID_SinglChat: ID_SinglChat,
-      });
-      io.to(ID_SinglChat).emit("historyMassages", historyMassages);
+      }).sort({$natural:-1}).limit(10);
+      io.to(ID_SinglChat).emit("historyMassages", historyMassages.reverse());
     });
 
 socket.on('leave', ({prevUSer, prevChat})=>{
@@ -100,7 +89,7 @@ socketIds.forEach(socketId => {
             sentTo: QuestIdUser,
             fileApiBrowser: fileApiBrowser,
           },
-          (err, doc) => {
+         async (err, doc) => {
             if (err) console.log("error at create message", err);
             
             io.in(ID_SinglChat).emit("message", {
@@ -112,13 +101,31 @@ socketIds.forEach(socketId => {
               fileApiBrowser: fileApiBrowser,
               timeCreateAt: new Date().toLocaleString(),
             });
+
+            let clients = io.sockets.adapter.rooms[ID_SinglChat]
             
-            io.to(people[QuestIdUser]).emit("sendNotification", "data")
+            let obj = await addNotifi(OwneruserId, doc._id, ID_SinglChat, sender.nick, sender.avatar, clients,QuestIdUser )
+            console.log('obj', obj);
+
+      
+// определяю если в комнате один человек отправляю notifi если два то значит чат открыт и не отправлю)
+            if(clients.length === 1 && obj.WhoIsNotifi){
+              let sendNotifi = await UsersOnline.findOne({OwneruserId: QuestIdUser})
+              if(sendNotifi){
+                console.log('a am sending message notifi when i got online users');
+                io.to(sendNotifi.socketId).emit("sendNotification", obj.WhoIsNotifi)
+              }
+            }
             callback();
           }
         );
       }
     );
+
+    socket.on("removeNotifi", async ({ID_SinglChat})=>{
+      console.log('its wirking removeNotifi', ID_SinglChat);
+      removeNotifi(ID_SinglChat)
+    })
 
     socket.on("disconnect", async (reason) => {
       if (reason === 'io server disconnect') {
@@ -127,8 +134,9 @@ socketIds.forEach(socketId => {
         console.log('the disconnection was initiated by the server, you need to reconnect manually');
       }
       removeUser(socket.id);
-      Object.entries(people).forEach((el)=> el[1] == socket.id && delete people[el[0]])
+      CountMessage = 10;
       await UsersOnline.deleteMany({socketId: socket.id})
+
       console.log('disconnect');
     });
 

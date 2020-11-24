@@ -1,9 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const mongoose = require("mongoose");
 const getAddedChats = express.Router();
-const jwt = require("jsonwebtoken");
 const { User, Chat } = require("../db");
 
 getAddedChats.get("/geAddedChats:OwnerUserId", async (req, res) => {

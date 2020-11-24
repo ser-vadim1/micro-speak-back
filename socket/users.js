@@ -1,9 +1,9 @@
 const {UsersOnline} =require("../db");
-const { notify } = require("../Routes/Auth.Routes");
 
 const users = [];
 const notyfy =[]
-const obj = {}
+let CountMessage = 10;
+
 const notifyFunc = ({idSocket, OwneruserId}) =>{
   const notyfiUser = {idSocket,OwneruserId}
   const index = notyfy.findIndex((el)=>el.OwneruserId == OwneruserId)
@@ -51,7 +51,12 @@ const removeUserNotyfy = (idSocket) => {
 
 const removeUser = (idSocket) => {
   const index = users.findIndex((user) => user.idSocket === idSocket);
-  if (index !== -1) return users.splice(index, 1)[0];
+  if (index !== -1 && idSocket) {
+    CountMessage = 40;
+    console.log('CountMessage', CountMessage);
+    
+    return users.splice(index, 1)[0]
+  };
 };
 
 
@@ -84,4 +89,5 @@ module.exports = {
   DB_UseresOnline,
   removeUserNotyfy,
   notifyFunc,
+  CountMessage,
 };
