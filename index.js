@@ -28,10 +28,7 @@ let cors = require("cors");
 let multer = require("multer");
 
 // **********************************************************
-app.use(cors({
-  origin: process.env.CLIENT_SIDE,
-  optionsSuccessStatus: 200,
-}));
+app.use(cors( ));
 app.use( compression() )
 app.use("/uploadedAvatar", express.static("./public/uploadAvatar"));
 app.use("/uploadedAnyFiles", express.static("./public/uploadedAnyFiles"));

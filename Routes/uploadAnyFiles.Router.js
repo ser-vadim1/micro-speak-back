@@ -18,11 +18,7 @@ let storageAnyFiles = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     console.log('file', file);
-    if(file.mimetype !== "image/jpeg"){
-      console.log('wrong ext');
-      return 
-      
-    }
+ 
     
     cb(
       null,

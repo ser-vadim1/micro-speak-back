@@ -5,6 +5,7 @@ const { Chat } = require("../db");
 const { Messages } = require("../db");
 const {UsersOnline} =require("../db");
 const {Notifi} = require("../db");
+const chalk = require('chalk');
 const {
   addUser,
   getUser,
@@ -105,7 +106,7 @@ socketIds.forEach(socketId => {
             let clients = io.sockets.adapter.rooms[ID_SinglChat]
             
             let obj = await addNotifi(OwneruserId, doc._id, ID_SinglChat, sender.nick, sender.avatar, clients,QuestIdUser )
-            console.log('obj', obj);
+            console.log(chalk.blue(obj));
 
       
 // определяю если в комнате один человек отправляю notifi если два то значит чат открыт и не отправлю)
@@ -134,9 +135,7 @@ socketIds.forEach(socketId => {
         console.log('the disconnection was initiated by the server, you need to reconnect manually');
       }
       removeUser(socket.id);
-      CountMessage = 10;
       await UsersOnline.deleteMany({socketId: socket.id})
-
       console.log('disconnect');
     });
 

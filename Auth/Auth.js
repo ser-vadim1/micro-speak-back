@@ -1,10 +1,33 @@
+
+const express = require("express");
+const app = express();
 const { now } = require("moment");
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy
 const { User } = require("../db");
 const JWTstrategy = require("passport-jwt").Strategy,
   ExtractJWT = require("passport-jwt").ExtractJwt;
 
+
+  app.use(passport.initialize())
+
+  passport.use(new FacebookStrategy({
+    clientID:"1857336501080546",
+    clientSecret: "0c22a9aaaea5d49812946efe5ac72dbf",
+    callbackURL: "http://localhost:3001/api/auth/facebook/callback",
+    profileFields: ['id', 'displayName', 'photos', 'email']
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    return done(null, profile);
+    // User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    //   return done(err, user);
+    // });
+  }
+));
+  
 passport.use(
   "signup",
   new localStrategy(

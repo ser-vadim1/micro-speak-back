@@ -2,7 +2,6 @@ const express = require("express");
 const { passport } = require("../Auth/Auth");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { User } = require("../db");
 
 router.get(
   "/profile",
@@ -19,8 +18,3 @@ router.get(
 
 module.exports = router;
 
-// res.json({
-//   message: "You made it to the secure route",
-//   user: req.user,
-//   token: req.query.secret_token,
-// });

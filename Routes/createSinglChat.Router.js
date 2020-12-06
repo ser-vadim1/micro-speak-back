@@ -35,7 +35,7 @@ createSinglChatRouter.get("/creatSinglChat", async (req, res) => {
     });
 
     if (adminCreated || _adminCreated)
-      return res.status(400).json({
+      return res.json({
         message: "SinglChat has been taken",
         ID_SinglChat: adminCreated ? adminCreated._id : _adminCreated._id,
       });

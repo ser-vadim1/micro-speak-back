@@ -3,12 +3,28 @@
 const express = require("express");
 const { check, validationResult } = require("express-validator");
 const AuthRoute = express.Router();
+const app = express();
 const { passport } = require("../Auth/Auth");
 const { User } = require("../db");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 //** FUNCTIONAL
+AuthRoute.get('/facebook', passport.authenticate('facebook'));
+
+
+AuthRoute.get("/facebook/callback", 
+passport.authenticate('facebook', (err)=>{
+  if(err) console.log('err', err)
+}),
+(req, res, next) => {
+  console.log('xx');
+    // Successful authentication, redirect home.
+    res.json({message: "ok?"})
+  });
+
+
+
 
 AuthRoute.post(
   "/registration",
